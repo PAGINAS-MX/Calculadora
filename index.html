@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .calc-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .calc-btn:active {
+            transform: scale(0.92);
+        }
+
+        .display-area {
+            word-wrap: break-word;
+            word-break: break-all;
+            min-height: 120px;
+        }
+
+        /* Custom scrollbar for history */
+        .history-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .history-list::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-950 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-md w-full glass-panel rounded-[2rem] overflow-hidden flex flex-col shadow-2xl relative">
+        
+        <!-- Header & Theme Toggle -->
+        <div class="p-6 flex justify-between items-center text-slate-500 dark:text-slate-400">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-calculator text-blue-500"></i>
+                <span class="font-semibold text-sm tracking-widest uppercase">Calculadora Pro</span>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="toggleHistory()" class="hover:text-blue-500 transition-colors">
+                    <i class="fas fa-history"></i>
+                </button>
+                <button onclick="toggleTheme()" class="hover:text-amber-500 transition-colors">
+                    <i id="theme-icon" class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Display Screen -->
+        <div class="px-6 pb-6 text-right flex flex-col justify-end display-area">
+            <div id="prev-operation" class="text-slate-400 dark:text-slate-500 text-lg h-6 mb-1 transition-all"></div>
+            <div id="current-display" class="text-slate-800 dark:text-white text-5xl font-light tracking-tighter truncate overflow-hidden">0</div>
+        </div>
+
+        <!-- History Overlay (Hidden by default) -->
+        <div id="history-overlay" class="absolute inset-0 bg-white dark:bg-slate-900 z-10 translate-y-full transition-transform duration-300 ease-in-out p-6 flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold dark:text-white">Historial</h3>
+                <button onclick="toggleHistory()" class="text-slate-500 hover:text-red-500"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="history-content" class="flex-grow overflow-y-auto history-list space-y-4">
+                <p class="text-slate-400 text-center py-10 italic">No hay cálculos recientes</p>
+            </div>
+            <button onclick="clearHistory()" class="mt-4 text-sm text-red-500 font-medium hover:underline">Borrar Historial</button>
+        </div>
+
+        <!-- Keypad -->
+        <div class="p-6 grid grid-cols-4 gap-3 bg-white/50 dark:bg-slate-900/50 rounded-t-[2.5rem]">
+            <!-- Row 1 -->
+            <button onclick="clearAll()" class="calc-btn h-16 rounded-2xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold text-xl">AC</button>
+            <button onclick="deleteDigit()" class="calc-btn h-16 rounded-2xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xl"><i class="fas fa-backspace"></i></button>
+            <button onclick="appendOperator('%')" class="calc-btn h-16 rounded-2xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xl">%</button>
+            <button onclick="appendOperator('/')" class="calc-btn h-16 rounded-2xl bg-blue-500 text-white font-bold text-2xl">÷</button>
+            
+            <!-- Row 2 -->
+            <button onclick="appendNumber('7')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">7</button>
+            <button onclick="appendNumber('8')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">8</button>
+            <button onclick="appendNumber('9')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">9</button>
+            <button onclick="appendOperator('*')" class="calc-btn h-16 rounded-2xl bg-blue-500 text-white font-bold text-2xl">×</button>
+
+            <!-- Row 3 -->
+            <button onclick="appendNumber('4')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">4</button>
+            <button onclick="appendNumber('5')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">5</button>
+            <button onclick="appendNumber('6')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">6</button>
+            <button onclick="appendOperator('-')" class="calc-btn h-16 rounded-2xl bg-blue-500 text-white font-bold text-2xl">−</button>
+
+            <!-- Row 4 -->
+            <button onclick="appendNumber('1')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">1</button>
+            <button onclick="appendNumber('2')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">2</button>
+            <button onclick="appendNumber('3')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">3</button>
+            <button onclick="appendOperator('+')" class="calc-btn h-16 rounded-2xl bg-blue-500 text-white font-bold text-2xl">+</button>
+
+            <!-- Row 5 -->
+            <button onclick="appendNumber('0')" class="calc-btn h-16 rounded-2xl col-span-2 bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">0</button>
+            <button onclick="appendNumber('.')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">.</button>
+            <button onclick="calculate()" class="calc-btn h-16 rounded-2xl bg-indigo-600 text-white font-bold text-2xl shadow-lg shadow-indigo-500/40">=</button>
+        </div>
+    </div>
+
+    <!-- Alert Component -->
+    <div id="custom-alert" class="fixed top-10 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-full shadow-xl transform -translate-y-20 transition-transform duration-300 z-50 flex items-center gap-2">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="alert-msg"></span>
+    </div>
+
+    <script>
+        let currentInput = '0';
+        let previousInput = '';
+        let operator = null;
+        let shouldResetDisplay = false;
+        let history = [];
+
+        const displayElement = document.getElementById('current-display');
+        const prevDisplayElement = document.getElementById('prev-operation');
+        const historyOverlay = document.getElementById('history-overlay');
+        const historyContent = document.getElementById('history-content');
+        const themeIcon = document.getElementById('theme-icon');
+
+        // Theme Logic
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Display Logic
+        function updateDisplay() {
+            displayElement.innerText = currentInput;
+            prevDisplayElement.innerText = previousInput;
+        }
+
+        function showAlert(msg) {
+            const alert = document.getElementById('custom-alert');
+            document.getElementById('alert-msg').innerText = msg;
+            alert.classList.remove('-translate-y-20');
+            setTimeout(() => alert.classList.add('-translate-y-20'), 3000);
+        }
+
+        function appendNumber(num) {
+            if (currentInput === '0' || shouldResetDisplay) {
+                currentInput = num;
+                shouldResetDisplay = false;
+            } else {
+                if (num === '.' && currentInput.includes('.')) return;
+                currentInput += num;
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (operator !== null) calculate();
+            previousInput = currentInput + ' ' + op;
+            operator = op;
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        function deleteDigit() {
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        function clearAll() {
+            currentInput = '0';
+            previousInput = '';
+            operator = null;
+            shouldResetDisplay = false;
+            updateDisplay();
+        }
+
+        function calculate() {
+            if (operator === null || shouldResetDisplay) return;
+
+            let result;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+
+            if (isNaN(prev) || isNaN(current)) return;
+
+            switch (operator) {
+                case '+': result = prev + current; break;
+                case '-': result = prev - current; break;
+                case '*': result = prev * current; break;
+                case '/': 
+                    if (current === 0) {
+                        showAlert("No se puede dividir por cero");
+                        clearAll();
+                        return;
+                    }
+                    result = prev / current; 
+                    break;
+                case '%': result = (prev * current) / 100; break;
+                default: return;
+            }
+
+            // Save to history
+            const opString = `${previousInput} ${currentInput} =`;
+            addToHistory(opString, result);
+
+            currentInput = result.toString().length > 12 ? result.toPrecision(8) : result.toString();
+            operator = null;
+            previousInput = '';
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        // History Logic
+        function toggleHistory() {
+            historyOverlay.classList.toggle('translate-y-full');
+            renderHistory();
+        }
+
+        function addToHistory(op, res) {
+            history.unshift({ op, res });
+            if (history.length > 10) history.pop();
+        }
+
+        function renderHistory() {
+            if (history.length === 0) {
+                historyContent.innerHTML = '<p class="text-slate-400 text-center py-10 italic">No hay cálculos recientes</p>';
+                return;
+            }
+            historyContent.innerHTML = history.map((item, index) => `
+                <div class="border-b border-slate-100 dark:border-slate-800 pb-2">
+                    <p class="text-xs text-slate-500 mb-1">${item.op}</p>
+                    <p class="text-lg font-semibold dark:text-white">${item.res}</p>
+                </div>
+            `).join('');
+        }
+
+        function clearHistory() {
+            history = [];
+            renderHistory();
+        }
+
+        // Keyboard Support
+        window.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
+            if (e.key === '.') appendNumber('.');
+            if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') appendOperator(e.key);
+            if (e.key === 'Enter' || e.key === '=') calculate();
+            if (e.key === 'Backspace') deleteDigit();
+            if (e.key === 'Escape') clearAll();
+        });
+
+    </script>
+</body>
+</html>
