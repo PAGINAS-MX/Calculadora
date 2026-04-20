@@ -3,190 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Pro</title>
+    <!-- Tu código de verificación solicitado -->
+    <meta name="ppck-ver" content="11bf7087c2c7ff9fd694fe80f127616e" />
+    <title>Calculadora Profesional Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
-
         body {
             font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
+            background-color: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: white;
         }
 
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+        .calc-container {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        }
-
-        .dark .glass-panel {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .calc-btn {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .calc-btn:active {
-            transform: scale(0.92);
+            border-radius: 2rem;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
         }
 
         .display-area {
-            word-wrap: break-word;
-            word-break: break-all;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: right;
             min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Custom scrollbar for history */
-        .history-list::-webkit-scrollbar {
-            width: 4px;
+        .previous-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            color: #94a3b8;
+            height: 1.5rem;
+            overflow: hidden;
         }
-        .history-list::-webkit-scrollbar-thumb {
-            background: rgba(156, 163, 175, 0.5);
-            border-radius: 10px;
+
+        .current-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow-x: auto;
+            scrollbar-width: none;
         }
+
+        .btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+            height: 60px;
+            border-radius: 1rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .btn:active {
+            transform: scale(0.92);
+        }
+
+        .btn-num {
+            background: rgba(51, 65, 85, 0.5);
+        }
+
+        .btn-num:hover {
+            background: rgba(71, 85, 105, 0.8);
+        }
+
+        .btn-op {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .btn-op:hover {
+            background: rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-equal {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            grid-column: span 2;
+        }
+
+        .btn-equal:hover {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-clear {
+            color: #f87171;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .btn-clear:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .history-panel {
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: #64748b;
+            max-height: 100px;
+            overflow-y: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 1rem;
+        }
+
+        /* Ocultar scrollbar */
+        .current-val::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-950 min-h-screen flex items-center justify-center p-4">
+<body>
 
-    <div class="max-w-md w-full glass-panel rounded-[2rem] overflow-hidden flex flex-col shadow-2xl relative">
-        
-        <!-- Header & Theme Toggle -->
-        <div class="p-6 flex justify-between items-center text-slate-500 dark:text-slate-400">
-            <div class="flex items-center gap-2">
-                <i class="fas fa-calculator text-blue-500"></i>
-                <span class="font-semibold text-sm tracking-widest uppercase">Calculadora Pro</span>
-            </div>
-            <div class="flex gap-4">
-                <button onclick="toggleHistory()" class="hover:text-blue-500 transition-colors">
-                    <i class="fas fa-history"></i>
-                </button>
-                <button onclick="toggleTheme()" class="hover:text-amber-500 transition-colors">
-                    <i id="theme-icon" class="fas fa-moon"></i>
-                </button>
-            </div>
+    <div class="calc-container">
+        <!-- Display -->
+        <div class="display-area">
+            <div id="previous-display" class="previous-val"></div>
+            <div id="current-display" class="current-val">0</div>
         </div>
 
-        <!-- Display Screen -->
-        <div class="px-6 pb-6 text-right flex flex-col justify-end display-area">
-            <div id="prev-operation" class="text-slate-400 dark:text-slate-500 text-lg h-6 mb-1 transition-all"></div>
-            <div id="current-display" class="text-slate-800 dark:text-white text-5xl font-light tracking-tighter truncate overflow-hidden">0</div>
-        </div>
-
-        <!-- History Overlay (Hidden by default) -->
-        <div id="history-overlay" class="absolute inset-0 bg-white dark:bg-slate-900 z-10 translate-y-full transition-transform duration-300 ease-in-out p-6 flex flex-col">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold dark:text-white">Historial</h3>
-                <button onclick="toggleHistory()" class="text-slate-500 hover:text-red-500"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="history-content" class="flex-grow overflow-y-auto history-list space-y-4">
-                <p class="text-slate-400 text-center py-10 italic">No hay cálculos recientes</p>
-            </div>
-            <button onclick="clearHistory()" class="mt-4 text-sm text-red-500 font-medium hover:underline">Borrar Historial</button>
-        </div>
-
-        <!-- Keypad -->
-        <div class="p-6 grid grid-cols-4 gap-3 bg-white/50 dark:bg-slate-900/50 rounded-t-[2.5rem]">
+        <!-- Buttons Grid -->
+        <div class="grid grid-cols-4 gap-3">
             <!-- Row 1 -->
-            <button onclick="clearAll()" class="calc-btn h-16 rounded-2xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold text-xl">AC</button>
-            <button onclick="deleteDigit()" class="calc-btn h-16 rounded-2xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xl"><i class="fas fa-backspace"></i></button>
-            <button onclick="appendOperator('%')" class="calc-btn h-16 rounded-2xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xl">%</button>
-            <button onclick="appendOperator('/')" class="calc-btn h-16 rounded-2xl bg-blue-500 text-white font-bold text-2xl">÷</button>
-            
+            <div class="btn btn-clear" onclick="clearAll()">AC</div>
+            <div class="btn btn-op" onclick="appendOperator('**')">^</div>
+            <div class="btn btn-op" onclick="appendOperator('%')">%</div>
+            <div class="btn btn-op" onclick="deleteLast()">DEL</div>
+
             <!-- Row 2 -->
-            <button onclick="appendNumber('7')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">7</button>
-            <button onclick="appendNumber('8')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">8</button>
-            <button onclick="appendNumber('9')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">9</button>
-            <button onclick="appendOperator('*')" class="calc-btn h-16 rounded-2xl bg-blue-500 text-white font-bold text-2xl">×</button>
+            <div class="btn btn-num" onclick="appendNumber('7')">7</div>
+            <div class="btn btn-num" onclick="appendNumber('8')">8</div>
+            <div class="btn btn-num" onclick="appendNumber('9')">9</div>
+            <div class="btn btn-op" onclick="appendOperator('/')">÷</div>
 
             <!-- Row 3 -->
-            <button onclick="appendNumber('4')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">4</button>
-            <button onclick="appendNumber('5')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">5</button>
-            <button onclick="appendNumber('6')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">6</button>
-            <button onclick="appendOperator('-')" class="calc-btn h-16 rounded-2xl bg-blue-500 text-white font-bold text-2xl">−</button>
+            <div class="btn btn-num" onclick="appendNumber('4')">4</div>
+            <div class="btn btn-num" onclick="appendNumber('5')">5</div>
+            <div class="btn btn-num" onclick="appendNumber('6')">6</div>
+            <div class="btn btn-op" onclick="appendOperator('*')">×</div>
 
             <!-- Row 4 -->
-            <button onclick="appendNumber('1')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">1</button>
-            <button onclick="appendNumber('2')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">2</button>
-            <button onclick="appendNumber('3')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">3</button>
-            <button onclick="appendOperator('+')" class="calc-btn h-16 rounded-2xl bg-blue-500 text-white font-bold text-2xl">+</button>
+            <div class="btn btn-num" onclick="appendNumber('1')">1</div>
+            <div class="btn btn-num" onclick="appendNumber('2')">2</div>
+            <div class="btn btn-num" onclick="appendNumber('3')">3</div>
+            <div class="btn btn-op" onclick="appendOperator('-')">−</div>
 
             <!-- Row 5 -->
-            <button onclick="appendNumber('0')" class="calc-btn h-16 rounded-2xl col-span-2 bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">0</button>
-            <button onclick="appendNumber('.')" class="calc-btn h-16 rounded-2xl bg-white dark:bg-slate-800 dark:text-white shadow-sm font-medium text-2xl">.</button>
-            <button onclick="calculate()" class="calc-btn h-16 rounded-2xl bg-indigo-600 text-white font-bold text-2xl shadow-lg shadow-indigo-500/40">=</button>
+            <div class="btn btn-num" onclick="appendNumber('0')">0</div>
+            <div class="btn btn-num" onclick="appendNumber('.')">.</div>
+            <div class="btn btn-equal" onclick="calculate()">=</div>
+            <div class="btn btn-op" onclick="appendOperator('+')">+</div>
         </div>
-    </div>
 
-    <!-- Alert Component -->
-    <div id="custom-alert" class="fixed top-10 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-full shadow-xl transform -translate-y-20 transition-transform duration-300 z-50 flex items-center gap-2">
-        <i class="fas fa-exclamation-circle"></i>
-        <span id="alert-msg"></span>
+        <!-- Historial Simple -->
+        <div class="history-panel" id="history-log">
+            <p class="mb-1 uppercase tracking-wider text-xs font-semibold">Historial Reciente</p>
+            <div id="history-items"></div>
+        </div>
     </div>
 
     <script>
         let currentInput = '0';
         let previousInput = '';
         let operator = null;
-        let shouldResetDisplay = false;
-        let history = [];
+        let shouldResetScreen = false;
 
-        const displayElement = document.getElementById('current-display');
-        const prevDisplayElement = document.getElementById('prev-operation');
-        const historyOverlay = document.getElementById('history-overlay');
-        const historyContent = document.getElementById('history-content');
-        const themeIcon = document.getElementById('theme-icon');
+        const currentDisplay = document.getElementById('current-display');
+        const previousDisplay = document.getElementById('previous-display');
+        const historyItems = document.getElementById('history-items');
 
-        // Theme Logic
-        function toggleTheme() {
-            document.documentElement.classList.toggle('dark');
-            const isDark = document.documentElement.classList.contains('dark');
-            themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-        }
-
-        // Display Logic
         function updateDisplay() {
-            displayElement.innerText = currentInput;
-            prevDisplayElement.innerText = previousInput;
+            currentDisplay.textContent = currentInput;
+            previousDisplay.textContent = previousInput;
         }
 
-        function showAlert(msg) {
-            const alert = document.getElementById('custom-alert');
-            document.getElementById('alert-msg').innerText = msg;
-            alert.classList.remove('-translate-y-20');
-            setTimeout(() => alert.classList.add('-translate-y-20'), 3000);
-        }
-
-        function appendNumber(num) {
-            if (currentInput === '0' || shouldResetDisplay) {
-                currentInput = num;
-                shouldResetDisplay = false;
+        function appendNumber(number) {
+            if (currentInput === '0' || shouldResetScreen) {
+                currentInput = number;
+                shouldResetScreen = false;
             } else {
-                if (num === '.' && currentInput.includes('.')) return;
-                currentInput += num;
+                if (number === '.' && currentInput.includes('.')) return;
+                currentInput += number;
             }
             updateDisplay();
         }
 
         function appendOperator(op) {
             if (operator !== null) calculate();
-            previousInput = currentInput + ' ' + op;
+            previousInput = currentInput + ' ' + (op === '**' ? '^' : op);
             operator = op;
-            shouldResetDisplay = true;
-            updateDisplay();
-        }
-
-        function deleteDigit() {
-            if (currentInput.length > 1) {
-                currentInput = currentInput.slice(0, -1);
-            } else {
-                currentInput = '0';
-            }
+            shouldResetScreen = true;
             updateDisplay();
         }
 
@@ -194,83 +214,76 @@
             currentInput = '0';
             previousInput = '';
             operator = null;
-            shouldResetDisplay = false;
+            updateDisplay();
+        }
+
+        function deleteLast() {
+            if (currentInput.length === 1) {
+                currentInput = '0';
+            } else {
+                currentInput = currentInput.slice(0, -1);
+            }
             updateDisplay();
         }
 
         function calculate() {
-            if (operator === null || shouldResetDisplay) return;
-
+            if (operator === null || shouldResetScreen) return;
+            
             let result;
             const prev = parseFloat(previousInput);
             const current = parseFloat(currentInput);
 
             if (isNaN(prev) || isNaN(current)) return;
 
-            switch (operator) {
-                case '+': result = prev + current; break;
-                case '-': result = prev - current; break;
-                case '*': result = prev * current; break;
-                case '/': 
-                    if (current === 0) {
-                        showAlert("No se puede dividir por cero");
-                        clearAll();
-                        return;
-                    }
-                    result = prev / current; 
-                    break;
-                case '%': result = (prev * current) / 100; break;
-                default: return;
+            try {
+                switch (operator) {
+                    case '+': result = prev + current; break;
+                    case '-': result = prev - current; break;
+                    case '*': result = prev * current; break;
+                    case '/': 
+                        if (current === 0) throw new Error("Div/0");
+                        result = prev / current; 
+                        break;
+                    case '%': result = prev % current; break;
+                    case '**': result = Math.pow(prev, current); break;
+                    default: return;
+                }
+
+                const calculationString = `${prev} ${operator === '**' ? '^' : operator} ${current} = ${result}`;
+                addToHistory(calculationString);
+
+                currentInput = result.toString();
+                operator = null;
+                previousInput = '';
+                shouldResetScreen = true;
+                updateDisplay();
+
+            } catch (error) {
+                currentInput = "Error";
+                shouldResetScreen = true;
+                updateDisplay();
             }
-
-            // Save to history
-            const opString = `${previousInput} ${currentInput} =`;
-            addToHistory(opString, result);
-
-            currentInput = result.toString().length > 12 ? result.toPrecision(8) : result.toString();
-            operator = null;
-            previousInput = '';
-            shouldResetDisplay = true;
-            updateDisplay();
         }
 
-        // History Logic
-        function toggleHistory() {
-            historyOverlay.classList.toggle('translate-y-full');
-            renderHistory();
-        }
-
-        function addToHistory(op, res) {
-            history.unshift({ op, res });
-            if (history.length > 10) history.pop();
-        }
-
-        function renderHistory() {
-            if (history.length === 0) {
-                historyContent.innerHTML = '<p class="text-slate-400 text-center py-10 italic">No hay cálculos recientes</p>';
-                return;
+        function addToHistory(text) {
+            const div = document.createElement('div');
+            div.className = 'text-xs text-slate-500 py-1 border-b border-white/5';
+            div.textContent = text;
+            historyItems.prepend(div);
+            
+            if (historyItems.children.length > 3) {
+                historyItems.lastChild.remove();
             }
-            historyContent.innerHTML = history.map((item, index) => `
-                <div class="border-b border-slate-100 dark:border-slate-800 pb-2">
-                    <p class="text-xs text-slate-500 mb-1">${item.op}</p>
-                    <p class="text-lg font-semibold dark:text-white">${item.res}</p>
-                </div>
-            `).join('');
         }
 
-        function clearHistory() {
-            history = [];
-            renderHistory();
-        }
-
-        // Keyboard Support
+        // Manejo de teclado físico
         window.addEventListener('keydown', (e) => {
-            if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
+            if (e.key >= 0 && e.key <= 9) appendNumber(e.key);
             if (e.key === '.') appendNumber('.');
-            if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') appendOperator(e.key);
-            if (e.key === 'Enter' || e.key === '=') calculate();
-            if (e.key === 'Backspace') deleteDigit();
+            if (e.key === '=' || e.key === 'Enter') calculate();
+            if (e.key === 'Backspace') deleteLast();
             if (e.key === 'Escape') clearAll();
+            if (['+', '-', '*', '/', '%'].includes(e.key)) appendOperator(e.key);
         });
 
     </script>
